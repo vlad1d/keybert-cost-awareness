@@ -1,56 +1,30 @@
+from init import cleaned_all
+
 import matplotlib.pyplot as plt
 from matplotlib.patches import Patch
 import re
 
 # Useful functions
-def count_matches(keywords, unigrams):
+def count_matches(keywords, text):
     """
-    Counts the number of partial matches for each keyword in a list of unigrams.
+    Counts the number of occurrences of each keyword in the text.
     """
-    result = {}
-    for keyword in keywords:
-        cnt = 0 
-        for unigram in unigrams:
-            if keyword in unigram:
-                cnt += 1
-        if cnt > 0:
-            result[keyword] = cnt
-    return result
-
-# A list of extracted KeyBERT keywords from the previous step
-output = [
-    # Unigrams
-    "dynamodb", "elasticloadbalancing", "costs", "billing", "pricing", "cloudtrail",
-    "cloud", "cost", "cloudwatch", "costing", "cloudbasedsensorcentral", 
-    "provisioning", "availability", "ec2instances", "swapping",
-
-    # Bigrams
-    "dynamodb costs", "costs aws", "dynamodb pricing", "aws costs", "cheaper dynamodb",
-    "expensive aws", "dynamodb cheap", "aws budgets", "aws cost", "dynamodb demand",
-    "aws optimizing", "aws reduce", "cheaper terraform", "aws customizations",
-    "budget cloudtrail", "cloudwatch tuning", "aws elasticloadbalancing", "reduces cost",
-
-    # Trigrams
-    "costs enabling dynamodb", "cost change dynamodb", "aws cost management",
-    "minimize aws costs", "dynamodb cheap terraform", "cheaper dynamodb enable",
-    "dynamo db cost", "make dynamodb cheap", "cost default dynamodb",
-    "dynamodb billing demand", "increasing billl aws", "allow cheaper instances",
-    "cloudformation newer cheaper", "cost lambda infrastructure",
-    "experimental cloudwatch billing"
-]
+    result = {keyword: 0 for keyword in keywords}
+    tokens = re.findall(r'\b\w+\b', text.lower()) # Extract words from text
+    
+    for token in tokens:
+        for keyword in keywords:
+            if keyword in token:
+                result[keyword] += 1
+    
+    return {keyword: count for keyword, count in result.items() if count > 0}
 
 original_keywords = {"bill", "cheap", "cost", "efficient", "expens", "pay" }
-new_keywords = {"cloud", "provision", "budget", "demand", "optimiz", "reduce", "tune", "minim"}
-
-# Extract all unigrams as individual words
-unigrams = []
-for word in output:
-    tokens = re.findall(r'\b\w+\b', word.lower())
-    unigrams.extend(tokens)
+new_keywords = {"provision", "budget", "demand", "optimiz", "reduce", "tun", "minim"}
 
 # Count matches
-original_counts = count_matches(original_keywords, unigrams)
-new_counts = count_matches(new_keywords, unigrams)
+original_counts = count_matches(original_keywords, cleaned_all)
+new_counts = count_matches(new_keywords, cleaned_all)
 
 # Configure the plot
 keys = list(original_counts.keys()) + list(new_counts.keys())

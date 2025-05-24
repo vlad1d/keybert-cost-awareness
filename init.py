@@ -2,7 +2,6 @@ import os
 import re
 import json
 from keybert import KeyBERT
-from sklearn.feature_extraction.text import ENGLISH_STOP_WORDS
 
 # Database configuration
 base = './database'
