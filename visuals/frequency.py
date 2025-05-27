@@ -1,8 +1,16 @@
-from init import cleaned_all
+"""
+This script visualizes the frequency of predefined and proposed keywords in the whole dataset.
+"""
 
 import matplotlib.pyplot as plt
 from matplotlib.patches import Patch
 import re
+import sys
+import os
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+from init import cleaned_all
 
 # Useful functions
 def count_matches(keywords, text):
