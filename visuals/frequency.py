@@ -45,6 +45,10 @@ legend = [
     Patch(facecolor='red', label='Proposed Keywords')
 ]
 
+# Make the images directory if it does not exist
+if not os.path.exists("images"):
+    os.makedirs("images")
+ 
 # Create the plot
 plt.figure(figsize=(10, 6))
 plt.bar(keys, vals, color=colours)
@@ -53,4 +57,5 @@ plt.xlabel("Keywords")
 plt.ylabel("Frequency")
 plt.legend(handles=legend)
 plt.grid(axis='y')
+plt.savefig("images/keyword_frequencies.png", dpi=300, bbox_inches='tight')
 plt.show()

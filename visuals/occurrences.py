@@ -1,53 +1,136 @@
 from collections import Counter
 from upsetplot import UpSet, from_memberships
 from matplotlib import pyplot as plt
+import os
+import sys
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+from init import cleaned_all_texts
 
 phrases = [
-   "dynamodb costs", "dynamodb pricing", "cheaper dynamodb", "cost cloud",
-   "dynamodb demand", "dynamodb cheap", "billing dynamodb", "demand dynamodb",
-   "dynamodb billing", "expensive dynamodb", "billing cloud", "cloud billing",
-   "cloud costs", "dynamodb pay", "cloud cheaper", "budget cloudtrail",
-   "dynamodb policy", "cheaper instances", "managed dynamodb", "costs cloudwatch",
-   "cheaper billing", "dynamodb offers", "billing cloudwatch", "dynamo demand",
-   "data billing", "payment dynamodb", "instance pricing", "instances cheaper",
-   "dynamo db", "reduced cost", "dynamodb policies", "instances costs",
-   "costs billing", "plan dynamodb", "reduces cost", "cost reductions",
-   "cost billing", "reducing cost", "reduce cost", "cost reduction",
-   "cloudwatch billing", "reduced costs", "cost reducing", "value dynamodb",
-   "instances cost", "spending cloud", "cheaper ec2", "reduces costs",
-   "depends dynamodb", "cost reduce", "expensive instances", "costs reduced",
-   "cheaper instance", "dynamodb provided", "costs reduce", "advance dynamodb",
-   "data cheaper", "io pricing", "cloud solutions", "value cloudwatch",
-   "specification dynamodb", "new dynamodb", "instance costs", "instances expensive",
-   "costs reducing", "fine dynamodb", "dynamodb advance", "dynamodb support",
-   "reduce costs", "dynamo backend", "cost reduced", "dynamodb usage",
-   "costs change", "ec2 pricing", "dynamodb use", "lower costs",
-   "billing costs", "cloudwatch costs", "target dynamodb", "selection dynamodb",
-   "instance cost", "cost server", "dynamo resource", "true dynamodb",
-   "cost monitoring", "cost change", "decrease costs", "tracking costs",
-   "cost tracking", "cloud compute", "costs feature", "dynamodb service",
-   "capacity billing", "pricing support", "change pricing", "dynamodb scalable",
-   "backend dynamo", "cloud charges", "elastic cloud", "amazon dynamodbv2"
+   "dynamodb costs",
+   "costs aws",
+   "dynamodb pricing",
+   "aws costs",
+   "cheaper dynamodb",
+   "cost aws",
+   "expensive aws",
+   "dynamodb cheap",
+   "aws budgets",
+   "budget aws",
+   "aws cost",
+   "dynamodb demand",
+   "aws budget",
+   "expensive dynamodb",
+   "demand dynamodb",
+   "cheapest aws",
+   "dynamodb billing",
+   "billing dynamodb",
+   "expense aws",
+   "aws valuable",
+   "dynamodb pay",
+   "aws dynamo",
+   "dynamodb policy",
+   "optimize aws",
+   "cost cloud",
+   "aws optimizing",
+   "paying aws",
+   "optinrequired aws",
+   "infrastructure aws",
+   "billing aws",
+   "aws infrastructure",
+   "price aws",
+   "aws additional",
+   "aws dynamodb",
+   "dynamodb aws",
+   "aws infrastructures",
+   "dynamo demand",
+   "managed dynamodb",
+   "aws reduce",
+   "aws billing",
+   "cloud costs",
+   "cheaper ec2",
+   "increase aws",
+   "dynamodb policies",
+   "value aws",
+   "minimize aws",
+   "cheaper instances",
+   "costs cloudwatch",
+   "dynamodb usage",
+   "dynamodb offers",
+   "cloud cheaper",
+   "dynamodb bottleneck",
+   "payment dynamodb",
+   "costs terraform",
+   "dynamodb support",
+   "dynamodb scalable",
+   "plan dynamodb",
+   "dynamodb use",
+   "dynamodb advance",
+   "dynamo db",
+   "cheaper terraform",
+   "dynamodb terraform",
+   "provide aws",
+   "dynamo resource",
+   "finance aws",
+   "aws ml",
+   "replace dynamodb",
+   "minimum aws",
+   "aws customizations",
+   "aws dedicated",
+   "aws increase",
+   "instances cheaper",
+   "plan aws",
+   "aws cloudformation",
+   "monthly aws",
+   "terraform dynamodb",
+   "cloudwatch costs",
+   "dynamodb service",
+   "value dynamodb",
+   "budget cloudtrail",
+   "expensive instances",
+   "change dynamodb",
+   "balancers aws",
+   "dynamo backend",
+   "new dynamodb",
+   "aws change",
+   "changing aws",
+   "option aws",
+   "cheaper instance",
+   "bring dynamodb",
+   "provisionning aws",
+   "services aws",
+   "target dynamodb",
+   "amazon dynamodbv2",
+   "monitors dynamodb",
+   "dynamodb prod",
+   "raise aws",
+   "management aws",
+   "aws suggested",
+   "gateway dynamodb"
 ]
 
-original_keywords = {"bill", "cheap", "cost", "efficient", "expens", "pay" }
+phrases_pairs = {tuple(sorted(phrase.lower().split())): phrase for phrase in phrases} # take all bigrams and put them in a set, sorted, to avoid duplicates
+pairs = Counter() 
 
-# filter the phrases to only include those that contain the original keywords
-filtered_phrases = [phrase for phrase in phrases if any(keyword in phrase for keyword in original_keywords)]
+for text in cleaned_all_texts: # iterate over all texts in the dataset
+   words = text.lower().split()
+   bigrams = list(zip(words, words[1:])) # use zip to create a list of all adjacently paired words in the text
 
-memberships = [] # create a list of tuples to use for the upset plot
-# basically pairs the words "formally" to keep track of which words are in the same phrase
+   for (word1, word2), _ in phrases_pairs.items(): # iterate over all pairs of words in the phrases
+      for (w1, w2) in bigrams:
+         if ((word1 in w1 and word2 in w2) or (word2 in w1 and word1 in w2)): # check if the pair of words is in the bigrams and matches partially
+            pairs[(word1, word2)] += 1
+     
+nozero_pairs = {pair: count for pair, count in pairs.items() if count > 0} # filter out pairs that do not occur
+data = from_memberships(nozero_pairs.keys(), data=list(nozero_pairs.values())) # create the data structure for the upset plot
 
-for phrase in filtered_phrases:
-   word1, word2 = phrase.lower().split()
-   sorted_pair = tuple(sorted([word1, word2]))
-   memberships.append(sorted_pair)
-   
-memberships_counts = Counter(memberships) # use counter to count the occurrences of each pair
+# Make the images directory if it does not exist
+if not os.path.exists("images"):
+    os.makedirs("images")
 
-data = from_memberships(memberships_counts.keys(), data=list(memberships_counts.values())) # create the data structure for the upset plot
-
-# now plot the data
+# Now plot the data
 fig = plt.figure(figsize=(16, 20))
 upset = UpSet(
    data,
@@ -55,8 +138,9 @@ upset = UpSet(
 )
 upset.plot(fig=fig)
 upset.style_elements = {'marker_size': 10, 'line_width': 2}
-plt.suptitle("UpSet Plot of Co-occurrences in KeyBERT Phrases")
-plt.figtext(0.5, 0.91, "Shows co-occurrences of keywords in 100 KeyBERT bigram phrases.", ha='center', fontsize=10)
+plt.suptitle("UpSet Plot of KeyBERT Bigrams in Dataset")
+plt.figtext(0.5, 0.91, "Shows co-occurrences of 100 KeyBERT bigram phrases + their frequency (partial match)", ha='center', fontsize=10)
 plt.tight_layout()
+plt.savefig("images/upset_plot_bigrams.png", dpi=300, bbox_inches='tight')
 plt.show()
 
