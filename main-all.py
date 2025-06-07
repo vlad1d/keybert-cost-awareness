@@ -1,13 +1,11 @@
 from init import (
-    kw_model, KeyBERT_PARAMS,
-    cleaned_all
+    extract_keywords, cleaned_all
 )
 
+profile = "upset" # ran with upset
+
 # Apply KeyBERT to extract keywords
-keywords = kw_model.extract_keywords(
-    cleaned_all,
-    **KeyBERT_PARAMS
-)
+keywords = extract_keywords(profile=profile, text=cleaned_all)
 
 # Print the keywords
 print("\nExtracted keywords:")

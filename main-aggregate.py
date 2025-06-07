@@ -1,14 +1,12 @@
 from collections import defaultdict
 from init import (
-    kw_model, KeyBERT_PARAMS,
-    cleaned_commit_issues, cleaned_stackoverflow_texts
+    extract_keywords, cleaned_commit_issues, cleaned_stackoverflow_texts
 )
 
+profile = "default" # ran with trigrams0, trigrams0.3
+
 # Apply KeyBERT on commits and issues
-keywords = kw_model.extract_keywords(
-    cleaned_commit_issues,
-    **KeyBERT_PARAMS
-)
+keywords = extract_keywords(profile=profile, text=cleaned_commit_issues)
 
 # Print the keywords
 print("Extracted keywords from commits and issues:")
@@ -20,7 +18,7 @@ keyword_scores = defaultdict(list)
 
 for cleaned_stackoverflow in cleaned_stackoverflow_texts:
     if cleaned_stackoverflow.strip():  # avoid empty strings
-        keywords = kw_model.extract_keywords(cleaned_stackoverflow, **KeyBERT_PARAMS)
+        keywords = extract_keywords(profile=profile, text=cleaned_stackoverflow)
         for kw, score in keywords:
             keyword_scores[kw].append(score)
 
