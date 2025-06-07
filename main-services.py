@@ -1,9 +1,10 @@
 import re
 import json
-from keybert import KeyBERT
 from sklearn.feature_extraction.text import CountVectorizer
 from collections import defaultdict
-from init import cleaned_all_texts, cleaned_all
+from init import (extract_keywords, cleaned_all_texts, cleaned_all)
+
+profile = "services" # ran with services
 
 with open("database/services.json", "r") as file:
    services = json.load(file)
@@ -36,14 +37,7 @@ for ngram in ngrams:
          map_to_phrase[service].add(ngram)
 
 # Put the results through KeyBERT to get the most relevant phrases
-kw_model = KeyBERT()
-keywords = kw_model.extract_keywords(
-   cleaned_all,
-   keyphrase_ngram_range=(2, 3),
-   stop_words='english',
-   top_n = 1000,
-   vectorizer=vectorizer
-)
+keywords = extract_keywords(profile=profile, text=cleaned_all, vectorizer=vectorizer)
 
 # Rank the services based on the keywords extracted by appending the keywords and their scores
 ranked_services = defaultdict(set)
