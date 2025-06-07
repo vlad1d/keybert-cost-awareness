@@ -10,9 +10,10 @@ stackoverflow_folder = os.path.join(base, 'terraform-stackoverflow')
 
 # KeyBERT configuration
 model = 'all-MiniLM-L6-v2'
-technical_words = ['terraform', 'cloudformation', 'azure', 'google', 'aws',
-                   #  'dynamo', 'elastic', 'cloudwatch', 'costexplorer'
-]
+technical_words = ['terraform', 'cloudformation', 'azure', 'google', 'aws']
+
+ALLOW_TECHNICAL_WORDS = True # Set to False to filter out technical words
+# If True, technical words will not be filtered out
 
 # KeyBERT parameters
 KeyBERT_PARAMS = dict (
@@ -56,6 +57,9 @@ def clean_text(text, blocked=technical_words):
         text = text.replace(compound, split)
 
     # remove unwanted tokens
+    if ALLOW_TECHNICAL_WORDS:
+        return text
+    
     tokens = re.findall(r'\b\w+\b', text)
     filtered_tokens = [token for token in tokens if not any(word in token for word in blocked)]
     return ' '.join(filtered_tokens)

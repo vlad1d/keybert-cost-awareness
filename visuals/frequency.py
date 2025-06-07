@@ -27,22 +27,25 @@ def count_matches(keywords, text):
     
     return {keyword: count for keyword, count in result.items() if count > 0}
 
-original_keywords = {"bill", "cheap", "cost", "efficient", "expens", "pay" }
-new_keywords = {"provision", "budget", "demand", "optimiz", "reduce", "tun", "minim"}
+predefined_keywords = {"bill", "cheap", "cost", "efficient", "expens", "pay" }
+proposed_keywords = {"budget"}
+other_keywords = {"provision", "demand", "optimiz", "reduce", "tun", "minim"}
 
 # Count matches
-original_counts = count_matches(original_keywords, cleaned_all)
-new_counts = count_matches(new_keywords, cleaned_all)
+predefined_counts = count_matches(predefined_keywords, cleaned_all)
+proposed_counts = count_matches(proposed_keywords, cleaned_all)
+other_counts = count_matches(other_keywords, cleaned_all)
 
 # Configure the plot
-keys = list(original_counts.keys()) + list(new_counts.keys())
-vals = list(original_counts.values()) + list(new_counts.values())
-colours = ['green'] * len(original_counts) + ['red'] * len(new_counts)
+keys = list(predefined_counts.keys()) + list(proposed_counts.keys()) + list(other_counts.keys())
+vals = list(predefined_counts.values()) + list(proposed_counts.values()) + list(other_counts.values())
+colours = ['goldenrod'] * len(predefined_counts) + ['green'] * len(proposed_counts) + ['red'] * len(other_counts)
 
 # Add a legend
 legend = [
-    Patch(facecolor='green', label='Predefined Keywords'),
-    Patch(facecolor='red', label='Proposed Keywords')
+    Patch(facecolor='goldenrod', label='Predefined Keywords'),
+    Patch(facecolor='green', label='Proposed Keywords'),
+    Patch(facecolor='red', label='Other Frequent Keywords')
 ]
 
 # Make the images directory if it does not exist
@@ -52,7 +55,7 @@ if not os.path.exists("images"):
 # Create the plot
 plt.figure(figsize=(10, 6))
 plt.bar(keys, vals, color=colours)
-plt.title("Keyword Frequencies: Predefined vs. Proposed")
+plt.title("Keyword Frequencies: Predefined vs. Frequent")
 plt.xlabel("Keywords")
 plt.ylabel("Frequency")
 plt.legend(handles=legend)

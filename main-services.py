@@ -1,0 +1,70 @@
+import re
+import json
+from keybert import KeyBERT
+from sklearn.feature_extraction.text import CountVectorizer
+from collections import defaultdict
+from init import cleaned_all_texts, cleaned_all
+
+with open("database/services.json", "r") as file:
+   services = json.load(file)
+
+# Get the service names or codes from the services JSON
+map_to_service = {}
+for service in services["Services"]:
+   name = service["ServiceName"].lower().strip()
+   code = service["ServiceCode"].lower().strip()
+   cleaned_name = re.sub(r"^(amazon|aws)\s+", "", name)
+   cleaned_code = re.sub(r"^(amazon|aws)\s+", "", code)
+   
+   # map all aliases to the cleaned name
+   # this covers more terms when trying to identify the service
+   for alias in {name, code, cleaned_name, cleaned_code}:
+      map_to_service[alias] = cleaned_name 
+
+# Use CountVectorizer to extract n-grams from the cleaned texts based on the service names
+# First, extract bigrams and trigrams from the texts
+vectorizer = CountVectorizer(ngram_range=(2,3), stop_words='english')
+X = vectorizer.fit_transform(cleaned_all_texts)
+ngrams = vectorizer.get_feature_names_out()
+
+# Create a mapping of n-grams to services
+# That is, for each n-gram, find whether it belongs to any service
+map_to_phrase = defaultdict(set)
+for ngram in ngrams:
+   for term, service in map_to_service.items():
+      if term in ngram:
+         map_to_phrase[service].add(ngram)
+
+# Put the results through KeyBERT to get the most relevant phrases
+kw_model = KeyBERT()
+keywords = kw_model.extract_keywords(
+   cleaned_all,
+   keyphrase_ngram_range=(2, 3),
+   stop_words='english',
+   top_n = 1000,
+   vectorizer=vectorizer
+)
+
+# Rank the services based on the keywords extracted by appending the keywords and their scores
+ranked_services = defaultdict(set)
+for keyword, score in keywords:
+   tokens = re.findall(r"\b\w+\b", keyword.lower())
+   
+   for alias, service in map_to_service.items():
+      if ' ' not in alias and alias in tokens: # if the alias is a single word and it is in the keyword
+         ranked_services[service].add((keyword, score))
+         
+      elif ' ' in alias:
+         pattern = r'\b' + re.escape(alias) + r'\b' # match the alias as a whole word
+         if re.search(pattern, keyword.lower()):
+            ranked_services[service].add((keyword, score))
+         
+# Print the services and their keywords
+for service, phrases in ranked_services.items():
+   # Sort phrases by score in descending order
+   sorted_phrases = sorted(phrases, key=lambda x: x[1], reverse=True)
+   
+   print(f"\n--- {service.upper()} ---")
+   for phrase, score in sorted_phrases[:10]:  # Limit only to top 10 phrases
+        print(f"{phrase}: {score:.4f}")
+   
