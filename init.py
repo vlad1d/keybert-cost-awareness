@@ -24,6 +24,8 @@ cleaned_all = ' '.join(cleaned_all_texts)
 print(f"Total texts for keyword extraction: {len(cleaned_all_texts)}\n")
 
 def extract_keywords(profile="default", text=None, vectorizer=None):
+    """ Extract keywords using KeyBERT based on the specified profile. Defaults to 'default' profile. """
+    
     config = KEYBERT_PARAMS[profile]
     corpus = text or cleaned_all # set to full text if nothing is provided
     

@@ -1,3 +1,5 @@
+""" Helper functions for data loading and text processing. """
+
 import re
 import os
 import json
@@ -11,15 +13,15 @@ def clean_text(text, blocked=TECHNICAL_WORDS):
     - removing unwanted tokens
     """
 
-    # replace underscores with spaces
+    # Replace underscores with spaces
     text = text.lower()
     text = text.replace('_', ' ') 
 
-    # split up commonly identified compound words
+    # Split up commonly identified compound words
     for compound, split in COMPOUND_SPLIT_RULES.items():
         text = text.replace(compound, split)
 
-    # remove unwanted tokens
+    # Remove unwanted tokens
     if ALLOW_TECHNICAL:
         return text
     
@@ -28,9 +30,8 @@ def clean_text(text, blocked=TECHNICAL_WORDS):
     return ' '.join(filtered_tokens)
 
 def get_text_from_so(post):
-    """
-    Extracts the text from a Stack Overflow post.
-    """
+    """ Extracts the text from a Stack Overflow post. Uses BeautifulSoup to parse HTML content. """
+      
     from bs4 import BeautifulSoup
 
     # Extract the body of the post
@@ -48,19 +49,25 @@ def get_text_from_so(post):
     text = f"{title} {body} {comments}".strip()
     return text
 
-# Load the commits and issues from the JSON files, ensure filtering out unrelated records
 def load_commit_issue_texts():
+    """ Loads commit and issue texts from JSON files, filtering out unrelated records. """
+    
     commit_issue_texts = []
+    
+    # Process each file in the GITHUB_FILES list
     for file in GITHUB_FILES:
         path = os.path.join(BASE_DIR, file)
         with open(path, 'r') as f:
             data = json.load(f)
         
         for record in data:
+            # Remove records that are marked as 'unrelated'
             if "unrelated" not in record.get('codes', []):
                 type = record.get('type')
                 content = record.get('content', {})
 
+                # Extract the text based on the type of record
+                # Strip whitespace and handle empty cases too 
                 if type == 'commit':
                     text = (content.get('message') or '').strip() 
                 elif type == 'issue': 
@@ -70,24 +77,33 @@ def load_commit_issue_texts():
                 else:
                     text = ''
 
+                # Append to the list
                 if text:
                     commit_issue_texts.append(text)
 
+    # Print for debugging then return
     print(f"Loaded {len(commit_issue_texts)} commits and issues from {len(GITHUB_FILES)} files.")
     return commit_issue_texts
 
-# Load Stack Overflow posts from JSON files
 def load_stackoverflow_texts():
+    """ Loads Stack Overflow posts from JSON files, extracting the text content. """
+    
+    # Get all JSON files in the Stack Overflow directory
     stackoverflow_files = [f for f in os.listdir(STACKOVERFLOW_DIR) if f.endswith('.json')]
     stackoverflow_texts = []
+    
     for file in stackoverflow_files:
+        # Load each file and extract the text using a helper function
         path = os.path.join(STACKOVERFLOW_DIR, file)
         with open(path, 'r') as f:
             data = json.load(f)
 
         text = get_text_from_so(data)
+        
+        # Clean the text and append it to the list if it's not empty
         if text:
             stackoverflow_texts.append(text)
 
+    # Print for debugging then return
     print(f"Loaded {len(stackoverflow_texts)} Stack Overflow posts from {len(stackoverflow_files)} files.")
     return stackoverflow_texts

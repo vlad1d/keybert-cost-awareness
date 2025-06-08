@@ -10,6 +10,7 @@ MODEL_NAME = 'all-MiniLM-L6-v2'
 TECHNICAL_WORDS = ['terraform', 'cloudformation', 'azure', 'google', 'aws']
 ALLOW_TECHNICAL = True # set to False only when running unigrams
 
+# All KeyBERT parameters that were used and presented as results in the research 
 KEYBERT_PARAMS = {
    "default": { 
       "keyphrase_ngram_range": (1, 1),
@@ -68,6 +69,7 @@ KEYBERT_PARAMS = {
    }
 }
 
+# Compound split rules for commonly-noticed terms in the results
 COMPOUND_SPLIT_RULES = {
    'cloudbilling': 'cloud billing',
    'costcenter': 'cost center',

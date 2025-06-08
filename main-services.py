@@ -17,8 +17,8 @@ for service in services["Services"]:
    cleaned_name = re.sub(r"^(amazon|aws)\s+", "", name)
    cleaned_code = re.sub(r"^(amazon|aws)\s+", "", code)
    
-   # map all aliases to the cleaned name
-   # this covers more terms when trying to identify the service
+   # Map all aliases to the cleaned name
+   # This covers more terms when trying to identify the service
    for alias in {name, code, cleaned_name, cleaned_code}:
       map_to_service[alias] = cleaned_name 
 
@@ -59,6 +59,6 @@ for service, phrases in ranked_services.items():
    sorted_phrases = sorted(phrases, key=lambda x: x[1], reverse=True)
    
    print(f"\n--- {service.upper()} ---")
-   for phrase, score in sorted_phrases[:10]:  # Limit only to top 10 phrases
+   for phrase, score in sorted_phrases[:10]: # limit only to top 10 phrases
         print(f"{phrase}: {score:.4f}")
    
