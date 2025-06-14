@@ -58,57 +58,7 @@ phrases = [
    "cheaper instances",
    "costs cloudwatch",
    "dynamodb usage",
-   "dynamodb offers",
-   "cloud cheaper",
-   "dynamodb bottleneck",
-   "payment dynamodb",
-   "costs terraform",
-   "dynamodb support",
-   "dynamodb scalable",
-   "plan dynamodb",
-   "dynamodb use",
-   "dynamodb advance",
-   "dynamo db",
-   "cheaper terraform",
-   "dynamodb terraform",
-   "provide aws",
-   "dynamo resource",
-   "finance aws",
-   "aws ml",
-   "replace dynamodb",
-   "minimum aws",
-   "aws customizations",
-   "aws dedicated",
-   "aws increase",
-   "instances cheaper",
-   "plan aws",
-   "aws cloudformation",
-   "monthly aws",
-   "terraform dynamodb",
-   "cloudwatch costs",
-   "dynamodb service",
-   "value dynamodb",
-   "budget cloudtrail",
-   "expensive instances",
-   "change dynamodb",
-   "balancers aws",
-   "dynamo backend",
-   "new dynamodb",
-   "aws change",
-   "changing aws",
-   "option aws",
-   "cheaper instance",
-   "bring dynamodb",
-   "provisionning aws",
-   "services aws",
-   "target dynamodb",
-   "amazon dynamodbv2",
-   "monitors dynamodb",
-   "dynamodb prod",
-   "raise aws",
-   "management aws",
-   "aws suggested",
-   "gateway dynamodb"
+   "dynamodb offers"
 ]
 
 phrases_pairs = {tuple(sorted(phrase.lower().split())): phrase for phrase in phrases} # take all bigrams and put them in a set, sorted, to avoid duplicates
@@ -139,8 +89,8 @@ upset = UpSet(
 upset.plot(fig=fig)
 upset.style_elements = {'marker_size': 10, 'line_width': 2}
 plt.suptitle("UpSet Plot of KeyBERT Bigrams in Dataset")
-plt.figtext(0.5, 0.91, "Shows co-occurrences of 100 KeyBERT bigram phrases + their frequency (partial match)", ha='center', fontsize=10)
+plt.figtext(0.5, 0.91, "Shows co-occurrences of 50 KeyBERT bigram phrases + their frequency (partial match)", ha='center', fontsize=10)
 plt.tight_layout()
-plt.savefig("images/upset_plot_bigrams.png", dpi=300, bbox_inches='tight')
+plt.savefig("images/upset_plot_bigrams.pdf", bbox_inches='tight')
 plt.show()
 

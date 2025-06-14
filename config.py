@@ -60,7 +60,7 @@ KEYBERT_PARAMS = {
    },
    "upset": {
       "keyphrase_ngram_range": (2, 2),
-      "top_n": 100,
+      "top_n": 50,
    },
    "services": {
       "keyphrase_ngram_range": (2, 3),
