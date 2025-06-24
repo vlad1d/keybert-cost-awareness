@@ -4,8 +4,17 @@ from sklearn.feature_extraction.text import CountVectorizer
 from collections import defaultdict
 from init import (extract_keywords, cleaned_all_texts, cleaned_all)
 
+
 profile = "services" # ran with services
 
+def fuzzy_match(phrase, text):
+   """ Use a window matching approach with fuzzywuzzy to find if a phrase is present in the text. """
+   words = phrase.lower().split()
+   pattern = r"(?i)" + r".{0,10}".join([re.escape(word) for word in words])
+   return re.search(pattern, text.lower())
+
+   
+    
 with open("database/services.json", "r") as file:
    services = json.load(file)
 
@@ -60,5 +69,24 @@ for service, phrases in ranked_services.items():
    
    print(f"\n--- {service.upper()} ---")
    for phrase, score in sorted_phrases[:10]: # limit only to top 10 phrases
-        print(f"{phrase}: {score:.4f}")
-   
+      print(f"{phrase}: {score:.4f}")
+      
+      for text in cleaned_all_texts:
+         # Use fuzzy matching to find the phrase in the text
+         match = fuzzy_match(phrase, text)
+         if match:
+            # Split the text around the match to show context
+            start,end = match.span()
+            actual_start = max (0, start - 200) # capture 100 characters before the match
+            actual_end = min(len(text), end + 200) # capture 100 characters after
+            
+            # Print the context of the match
+            actual = text[actual_start:actual_end]
+            if actual_start > 0:
+               actual = "[...]" + actual
+            if actual_end < len(text):
+               actual = actual + "[...]"
+            # print(f"[...] {actual} [...]\n")
+            print(f"{actual}\n-")
+            
+      print("\n")
